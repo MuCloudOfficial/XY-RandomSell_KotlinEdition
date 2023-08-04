@@ -1,0 +1,17 @@
+#==================================================
+name: XY-RandomSell
+main: me.mucloud.plugin.XY.RandomSell.Main
+version: "StarrySky"
+versionCN: "星空"
+versionInternal: 1001
+author: "Mu_Cloud"
+#==================================================
+api-version: 1.12
+softdepend: ["PlaceholderAPI"]
+description: XY-RandomSell Plugin.
+libraries: []
+
+commands:
+  xyrs:
+    usage: /xyrs [args]
+    description: "This plugin is not compatible in your server when you look this message."
