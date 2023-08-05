@@ -4,6 +4,14 @@ import me.clip.placeholderapi.PlaceholderAPI
 import me.mucloud.plugin.XY.RandomSell.external.hook.PAPIHooker
 import me.mucloud.plugin.XY.RandomSell.internal.MessageLevel
 import me.mucloud.plugin.XY.RandomSell.internal.MessageSender
+import me.mucloud.plugin.XY.RandomSell.internal.Shop.GUIRESOURCES.CANCEL
+import me.mucloud.plugin.XY.RandomSell.internal.Shop.GUIRESOURCES.M1
+import me.mucloud.plugin.XY.RandomSell.internal.Shop.GUIRESOURCES.M5
+import me.mucloud.plugin.XY.RandomSell.internal.Shop.GUIRESOURCES.MX
+import me.mucloud.plugin.XY.RandomSell.internal.Shop.GUIRESOURCES.OK
+import me.mucloud.plugin.XY.RandomSell.internal.Shop.GUIRESOURCES.P1
+import me.mucloud.plugin.XY.RandomSell.internal.Shop.GUIRESOURCES.P5
+import me.mucloud.plugin.XY.RandomSell.internal.Shop.GUIRESOURCES.PX
 import me.mucloud.plugin.XY.RandomSell.internal.configuration.ConfigurationReader
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
@@ -13,6 +21,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.inventory.Inventory
+import org.bukkit.inventory.InventoryView
 
 object RepoPool{
 
@@ -118,7 +127,7 @@ class Repo(owner: Player, init: ArrayList<Product>) {
     var isView: Boolean = false
 
     // 收购器
-    private var seller: Seller? = null
+    val seller: Seller
 
     init {
         val rawTitle = ConfigurationReader.getGUITitle()
@@ -136,6 +145,7 @@ class Repo(owner: Player, init: ArrayList<Product>) {
         }
 
         preInitView()
+        seller = Seller(Owner)
     }
 
     fun addProduct(product: Product): Int{ // 0 - Succeed | 1 - Too Much | 2 - Similar Product
@@ -172,13 +182,12 @@ class Repo(owner: Player, init: ArrayList<Product>) {
         if(pos !in Content.indices){
             return
         }
-        seller = Seller(this, Content[pos])
-        seller?.toView()
+        seller.setProduct(Content[pos])
+        seller.openSell()
     }
 
-    fun cancelSell(){
-        seller?.close()
-        seller = null
+    fun closeRepo(){
+        seller.clearSell()
         open()
     }
 
@@ -191,8 +200,76 @@ class Repo(owner: Player, init: ArrayList<Product>) {
         target.openInventory(INV)
     }
 
-    fun getOwner(): Player{
-        return Owner
+    fun closeRepoView(){
+        isView = false
+        INV.viewers.forEach{ it.closeInventory() }
+    }
+
+    class Seller(owner: Player){
+        val Owner: Player = owner
+        var Target: Product? = null
+        val INV: Inventory = GUIRESOURCES.SELLGUIFRAME
+        var callAmount: Int = 0
+        var currentSellResponse: SellResponse = SellResponse.ZERO
+
+        fun isEmpty(): Boolean{
+            return Target == null
+        }
+
+        fun setProduct(product: Product){
+            Target = product
+            INV.setItem(4, product.toICON())
+            updatePreSellStatus()
+        }
+
+        private fun updatePreSellStatus(){
+            currentSellResponse = Target!!.prePayForPlayer(Owner, callAmount)
+            INV.setItem(51, OK(currentSellResponse, callAmount, Target!!.Price))
+        }
+
+        fun plus(amount: Int){
+            if(!isEmpty()){
+                return
+            }
+            if(callAmount + amount > Target!!.Limit) {
+                callAmount = Target!!.Limit
+            }else{
+                callAmount += amount
+            }
+            updatePreSellStatus()
+        }
+
+        fun minus(amount: Int){
+            if(!isEmpty()){
+                return
+            }
+            if(callAmount - amount < 0) {
+                callAmount = 0
+            }else{
+                callAmount -= amount
+            }
+            updatePreSellStatus()
+        }
+
+        fun sell(){
+            if(!isEmpty()){
+                return
+            }
+            Target!!.payForPlayer(Owner, callAmount)
+            Owner.inventory.remove(Target!!.toICON().also { it.amount = callAmount })
+            clearSell()
+        }
+
+        fun openSell(){
+            Owner.openInventory(INV)
+        }
+
+        fun clearSell(){
+            Target = null
+            callAmount = 0
+            Owner.closeInventory()
+        }
+
     }
 
 }
@@ -202,7 +279,7 @@ object RepoGUIListener: Listener {
     @EventHandler fun onListen(ice: InventoryClickEvent){
         val p = ice.whoClicked as Player
         val repo = RepoPool.getRepo(p)
-        if(repo != null && repo.isView && ice.view.title == repo.Title && ice.slotType == InventoryType.SlotType.CONTAINER){
+        if(repo != null && repo.isView && ice.view.title == repo.Title){
             ice.isCancelled = true
             when(val slot = ice.slot){
                 in repo.Content.indices -> { repo.sell(slot) }
@@ -210,4 +287,43 @@ object RepoGUIListener: Listener {
         }
     }
 
+}
+
+object SellGUIListener: Listener{
+
+    @EventHandler fun onListen(ice: InventoryClickEvent){
+        val p = ice.whoClicked as Player
+        val repo = RepoPool.getRepo(p)
+        if(repo != null && repo.isView && !repo.seller.isEmpty()){
+            ice.isCancelled = true
+            val seller = repo.seller
+            when(ice.currentItem){
+                CANCEL -> {
+                    seller.clearSell()
+                    repo.open()
+                }
+                OK -> {
+                    when(seller.currentSellResponse){
+                        SellResponse.DONE -> seller.sell()
+                        else -> {}
+                    }
+                }
+                P1 -> seller.plus(1)
+                P5 -> seller.plus(5)
+                PX -> seller.plus(10)
+                M1 -> seller.minus(1)
+                M5 -> seller.minus(5)
+                MX -> seller.minus(10)
+                else -> {}
+            }
+        }
+    }
+
+}
+
+enum class SellResponse{
+    DONE,
+    ZERO,
+    OVERFLOW,
+    NOT_ENOUGH,
 }
