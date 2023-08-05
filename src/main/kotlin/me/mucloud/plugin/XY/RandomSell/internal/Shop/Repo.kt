@@ -1,6 +1,5 @@
 package me.mucloud.plugin.XY.RandomSell.internal.Shop
 
-import me.clip.placeholderapi.PlaceholderAPI
 import me.mucloud.plugin.XY.RandomSell.external.hook.PAPIHooker
 import me.mucloud.plugin.XY.RandomSell.internal.MessageLevel
 import me.mucloud.plugin.XY.RandomSell.internal.MessageSender
@@ -13,15 +12,15 @@ import me.mucloud.plugin.XY.RandomSell.internal.Shop.GUIRESOURCES.P1
 import me.mucloud.plugin.XY.RandomSell.internal.Shop.GUIRESOURCES.P5
 import me.mucloud.plugin.XY.RandomSell.internal.Shop.GUIRESOURCES.PX
 import me.mucloud.plugin.XY.RandomSell.internal.configuration.ConfigurationReader
+
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.event.inventory.InventoryType
 import org.bukkit.inventory.Inventory
-import org.bukkit.inventory.InventoryView
+import me.clip.placeholderapi.PlaceholderAPI
 
 object RepoPool{
 
@@ -38,7 +37,7 @@ object RepoPool{
 
     private val POOL: MutableMap<Player, Repo> = emptyMap<Player, Repo>().toMutableMap()
 
-    fun Launch(sender: CommandSender, config: ConfigurationReader){
+    fun launch(sender: CommandSender, config: ConfigurationReader){
         if(NonCapacityStatus || NonRefreshStatus || NonProductStatus){
             MessageSender.sendMessage(MessageLevel.NORMAL, sender, "&4随机商品池无法启动, 可能出现了以下原因")
             if(NonProductStatus){

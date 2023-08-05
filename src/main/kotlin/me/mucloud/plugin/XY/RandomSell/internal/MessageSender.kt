@@ -16,16 +16,17 @@ object MessageSender{
 
     private lateinit var plugin: Main
     private lateinit var PREFIX: String
-    private lateinit var Sendmode: SendMode
     private lateinit var CCS: ConsoleCommandSender
     private lateinit var LOGGER: Logger
+
+    //    private lateinit var Sendmode: SendMode 其他发送方式等下个版本
 
     fun init(main: Main){
         plugin = main
         CCS = main.server.consoleSender
         LOGGER = main.logger
 
-        Sendmode = SendMode.valueOf("")
+        PREFIX = transColor("&7&l[&6&lXY&7&l-&e&lRandomSell&7&l] &b&l>>> ")
     }
 
     fun sendMessage(level: MessageLevel, target: CommandSender, msg: String){
@@ -71,11 +72,12 @@ object MessageSender{
 
 }
 
-enum class SendMode{
-    MESSAGE,
-    ACTIONBAR,
-    BOSSBAR
-}
+// 等待更新
+//enum class SendMode{
+//    MESSAGE,
+//    ACTIONBAR,
+//    BOSSBAR
+//}
 
 enum class MessageLevel{
     NORMAL,

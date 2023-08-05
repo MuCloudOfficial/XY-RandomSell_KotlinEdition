@@ -31,6 +31,14 @@ object ProductPool{
         return out
     }
 
+    fun reg(product: Product){
+        POOL.forEach{
+            if(it.ICON == product.ICON) return
+        }
+        POOL.add(product)
+
+    }
+
 }
 
 class Product(

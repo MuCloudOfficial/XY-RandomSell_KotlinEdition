@@ -24,7 +24,7 @@ class Main(
         VaultHooker.checkHook(this)
         PAPIHooker.checkHook() // 检查 PlaceholderAPI 支持
 
-        RepoPool.Launch(server.consoleSender, ConfigurationReader)
+        RepoPool.launch(server.consoleSender, ConfigurationReader)
     }
 
     override fun onDisable() {

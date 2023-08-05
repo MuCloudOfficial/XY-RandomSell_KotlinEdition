@@ -5,14 +5,13 @@ import me.mucloud.plugin.XY.RandomSell.internal.MessageLevel
 import me.mucloud.plugin.XY.RandomSell.internal.MessageSender
 import me.mucloud.plugin.XY.RandomSell.internal.Shop.Product
 import me.mucloud.plugin.XY.RandomSell.internal.Shop.ProductPool
-import me.mucloud.plugin.XY.RandomSell.internal.Shop.Repo
 import me.mucloud.plugin.XY.RandomSell.internal.Shop.RepoPool
-import org.bukkit.Material
 
+import org.bukkit.Material
 import org.bukkit.configuration.file.YamlConfiguration
 
 import java.io.File
-import java.util.Date
+import java.util.*
 
 object ConfigurationReader{
 
@@ -151,15 +150,15 @@ object ConfigurationReader{
 
         for(p in configFileReader.getList("Products")!!){
             val map: Map<String, *> = p as Map<String, *>
-            /*ProductPool.add(
+            ProductPool.reg(
                 Product(
                     if (Material.matchMaterial(map["material"] as String) != null) Material.matchMaterial(map["material"] as String)!! else continue,
                     map["name"] as String,
-                    map["lore"] as Array<String>,
+                    map["lore"] as List<String>,
                     map["price"] as Double,
                     map["amount"] as Int
                 )
-            )*/
+            )
         }
 
     }
