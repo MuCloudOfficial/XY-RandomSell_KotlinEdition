@@ -18,37 +18,41 @@ import java.net.URL
 
 object VersionChecker{
 
+    private lateinit var main: Main
+
     val remoteSources: Array<String> = arrayOf(
         "https://raw.githubusercontent.com/MuCloudOfficial/XY-RandomSell/master/src/main/resources/plugin.yml",
         "https://gitee.com/MuCloudOfficial/XY-RandomSell/raw/master/src/main/resources/plugin.yml")
 
     lateinit var version: String
     lateinit var versionCN: String
-    var versionInternal: Int = -1
+    var versionInternal: Double = 0.0
 
     lateinit var remoteVersion: String
-    var remoteVersionInternal: Int = -1
+    var remoteVersionInternal: Double = 0.0
     lateinit var remoteVersionCN: String
 
     fun init(main: Main){
-        fetchCurrentVer(main)
-        fetchNewVer(main, main.server.consoleSender)
+        this.main = main
+        fetchCurrentVer()
+        fetchNewVer(main.server.consoleSender)
     }
 
-    private fun fetchCurrentVer(main: Main){
+    private fun fetchCurrentVer(){
         val reader = YamlConfiguration().also {
             it.load(BufferedReader(InputStreamReader(main.getResource("plugin.yml")!!)))
         }
         version = reader.getString("version")!!
         versionCN = reader.getString("versionCN")!!
-        versionInternal = reader.getInt("versionInternal")
+        versionInternal = reader.getDouble("versionInternal")
     }
 
-    private fun fetchNewVer(main: Main, caller: CommandSender){
+    fun fetchNewVer(caller: CommandSender){
         object : BukkitRunnable(){
             override fun run() {
                 var remoteReader: BufferedReader? = null
-                var success: Boolean = false
+                var success = false
+                var hasNewerVer = false
                 for(i in remoteSources){
                     try {
                         remoteReader = BufferedReader(InputStreamReader(URL(i).openStream()))
@@ -65,14 +69,28 @@ object VersionChecker{
 
                     remoteVersion = reader.getString("version")!!
                     remoteVersionCN = reader.getString("versionCN")!!
-                    remoteVersionInternal = reader.getInt("versionInternal")
+                    remoteVersionInternal = reader.getDouble("versionInternal")
+
+                    if(remoteVersionInternal > versionInternal){
+                        hasNewerVer = true
+                    }
+                }else{
+                    MessageSender.sendMessage(MessageLevel.NORMAL, caller, "&6&l未获取到新版本信息, 获取新版本信息请移步至本插件的项目页")
+                    return
                 }
 
-                val msg = """
+                val msg = if(hasNewerVer){
+                    """
                     &7&l| 找到新版本
-                    &7&l| 
-                    &7&l| 
-                """.trimIndent()
+                    &7&l| ${if(!version.equals(remoteVersion, true)){ "$version($versionCN) >>> &e&l$remoteVersion($remoteVersionCN) &7&l| $versionInternal >>> &e&l$remoteVersionInternal" } else "$versionInternal >>> &e&l$remoteVersionInternal"}
+                    &7&l|
+                    &7&l| 当前版本下载地址:
+                    &7&l| https://gitee.com/MuCloudOfficial/XY-RandomSell_KotlinEdition/releases/${version}_${versionInternal}
+                    &7&l| https://github.com/MuCloudOfficial/XY-RandomSell_KotlinEdition/releases/${version}_${versionInternal}
+                    """.trimIndent()
+                }else{
+                    "&7&l| &a&l当前已最新版本"
+                }
 
                 when(caller){
                     is Player -> MessageSender.sendMessage(MessageLevel.NONE, caller, msg)

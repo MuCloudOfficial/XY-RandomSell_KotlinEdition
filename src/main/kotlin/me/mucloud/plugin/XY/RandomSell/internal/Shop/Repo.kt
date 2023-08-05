@@ -21,6 +21,9 @@ import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import me.clip.placeholderapi.PlaceholderAPI
+import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
 
 object RepoPool{
 
@@ -62,6 +65,7 @@ object RepoPool{
 
     fun del(user: Player){
         if(POOL.containsKey(user)){
+            POOL[user]!!.closeRepoView()
             POOL.remove(user)
         }
     }
@@ -80,6 +84,16 @@ object RepoPool{
 
     fun getSize(): Int{
         return POOL.size
+    }
+
+    fun getOpenedSize(): Int{
+        var out = 0
+        POOL.forEach{
+            if(it.value.isOpen){
+                out++
+            }
+        }
+        return out
     }
 
     fun isViewing(target: Player): Boolean{
@@ -110,9 +124,25 @@ object RepoPool{
         }else null
     }
 
+    fun setOpenRepo(caller: CommandSender, target: Player, open: Boolean){
+        if(getRepo(target) == null){
+            MessageSender.sendMessage(MessageLevel.NOTICE, caller, "&4&l未找到该玩家对应的收购商店")
+        }else{
+            getRepo(target)!!.isOpen = open
+            if(open){
+                MessageSender.sendMessage(MessageLevel.NOTICE, caller, "&a&l该玩家的收购商店已开启")
+            }else{
+                MessageSender.sendMessage(MessageLevel.NOTICE, caller, "&6&l该玩家的收购商店已关闭")
+            }
+        }
+    }
+
 }
 
 class Repo(owner: Player, init: ArrayList<Product>) {
+
+    // 开关
+    var isOpen = true
 
     // 商店GUI框架
     val INV: Inventory
@@ -185,11 +215,6 @@ class Repo(owner: Player, init: ArrayList<Product>) {
         seller.openSell()
     }
 
-    fun closeRepo(){
-        seller.clearSell()
-        open()
-    }
-
     fun open(){
         isView = true
         Owner.openInventory(INV)
@@ -200,6 +225,9 @@ class Repo(owner: Player, init: ArrayList<Product>) {
     }
 
     fun closeRepoView(){
+        if(!seller.isEmpty()){
+            seller.clearSell()
+        }
         isView = false
         INV.viewers.forEach{ it.closeInventory() }
     }
@@ -286,6 +314,14 @@ object RepoGUIListener: Listener {
         }
     }
 
+    @EventHandler fun onListen(ice: InventoryCloseEvent){
+        val p = ice.player as Player
+        val repo = RepoPool.getRepo(p)
+        if(repo != null && repo.isView && ice.view.title == repo.Title){
+            repo.closeRepoView()
+        }
+    }
+
 }
 
 object SellGUIListener: Listener{
@@ -316,6 +352,26 @@ object SellGUIListener: Listener{
                 else -> {}
             }
         }
+    }
+
+    @EventHandler fun onListen(ice: InventoryCloseEvent){
+        val p = ice.player as Player
+        val repo = RepoPool.getRepo(p)
+        if(repo != null && repo.isView && !repo.seller.isEmpty()){
+            repo.closeRepoView()
+        }
+    }
+
+}
+
+object RepoPoolListener: Listener{
+
+    @EventHandler fun onListen(pje: PlayerJoinEvent){
+        RepoPool.reg(pje.player)
+    }
+
+    @EventHandler fun onListen(pqe: PlayerQuitEvent){
+        RepoPool.del(pqe.player)
     }
 
 }
