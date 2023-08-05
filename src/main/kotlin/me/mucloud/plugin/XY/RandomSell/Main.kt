@@ -4,13 +4,19 @@ import me.mucloud.plugin.XY.RandomSell.external.hook.PAPIHooker
 import me.mucloud.plugin.XY.RandomSell.external.hook.VaultHooker
 import me.mucloud.plugin.XY.RandomSell.internal.MessageLevel
 import me.mucloud.plugin.XY.RandomSell.internal.MessageSender
+import me.mucloud.plugin.XY.RandomSell.internal.Shop.RepoGUIListener
 import me.mucloud.plugin.XY.RandomSell.internal.Shop.RepoPool
+import me.mucloud.plugin.XY.RandomSell.internal.Shop.RepoPoolListener
+import me.mucloud.plugin.XY.RandomSell.internal.Shop.SellGUIListener
 import me.mucloud.plugin.XY.RandomSell.internal.command.CommandManager
 import me.mucloud.plugin.XY.RandomSell.internal.configuration.ConfigurationReader
+import org.bukkit.Bukkit
+import org.bukkit.event.HandlerList
+
 import org.bukkit.plugin.java.JavaPlugin
 
 class Main(
-    var NAME: String = "§6§lXY§7§l-§e§lRandomSell",
+    private var NAME: String = "§6§lXY§7§l-§e§lRandomSell",
     var ID: String = "xyrs"
 ) : JavaPlugin(){
 
@@ -24,10 +30,18 @@ class Main(
         VaultHooker.checkHook(this)
         PAPIHooker.checkHook() // 检查 PlaceholderAPI 支持
 
+        Bukkit.getPluginManager().registerEvents(RepoGUIListener, this)
+        Bukkit.getPluginManager().registerEvents(RepoPoolListener, this)
+        Bukkit.getPluginManager().registerEvents(SellGUIListener, this)
+
         RepoPool.launch(server.consoleSender, ConfigurationReader)
     }
 
     override fun onDisable() {
+
+
+        HandlerList.unregisterAll(this)
+
         MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "§a§l $NAME 正在关闭")
     }
 
