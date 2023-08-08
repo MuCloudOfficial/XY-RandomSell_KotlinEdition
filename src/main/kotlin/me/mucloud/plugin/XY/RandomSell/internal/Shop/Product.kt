@@ -39,6 +39,10 @@ object ProductPool{
 
     }
 
+    fun close(){
+        POOL.clear()
+    }
+
 }
 
 class Product(
@@ -73,10 +77,6 @@ class Product(
     fun payForPlayer(target: Player, take: Int){
         VaultHooker.ECON.depositPlayer(target, take *Price)
         MessageSender.sendMessage(MessageLevel.NOTICE, target, "&a&l收购完成")
-    }
-
-    fun refresh(){
-        Remain = Limit
     }
 
     fun toICON(): ItemStack{

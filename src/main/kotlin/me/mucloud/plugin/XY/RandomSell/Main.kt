@@ -1,5 +1,6 @@
 package me.mucloud.plugin.XY.RandomSell
 
+import me.mucloud.plugin.XY.RandomSell.external.VersionChecker
 import me.mucloud.plugin.XY.RandomSell.external.hook.PAPIHooker
 import me.mucloud.plugin.XY.RandomSell.external.hook.VaultHooker
 import me.mucloud.plugin.XY.RandomSell.internal.MessageLevel
@@ -10,6 +11,7 @@ import me.mucloud.plugin.XY.RandomSell.internal.Shop.RepoPoolListener
 import me.mucloud.plugin.XY.RandomSell.internal.Shop.SellGUIListener
 import me.mucloud.plugin.XY.RandomSell.internal.command.CommandManager
 import me.mucloud.plugin.XY.RandomSell.internal.configuration.ConfigurationReader
+
 import org.bukkit.Bukkit
 import org.bukkit.event.HandlerList
 
@@ -35,10 +37,14 @@ class Main(
         Bukkit.getPluginManager().registerEvents(SellGUIListener, this)
 
         RepoPool.launch(server.consoleSender, ConfigurationReader)
+        RepoPool.regTimerTask(this)
+
+        VersionChecker.init(this)
     }
 
     override fun onDisable() {
 
+        CommandManager.close(this)
 
         HandlerList.unregisterAll(this)
 

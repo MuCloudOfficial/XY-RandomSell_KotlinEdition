@@ -16,6 +16,10 @@ object CommandManager : CommandExecutor{
         main.getCommand(main.ID)!!.setExecutor(this)
     }
 
+    fun close(main: Main){
+        main.getCommand(main.ID)!!.setExecutor(null)
+    }
+
     private fun sendInfo(sender: CommandSender){
         MessageSender.sendMessage(MessageLevel.NONE, sender, """
             &7&l| &6&lXY&7&l-&b&lRandomSell
@@ -26,7 +30,7 @@ object CommandManager : CommandExecutor{
             &7&l|==============================================
             &7&l| &a/xyrs info          &7>>> &6显示该页面
             &7&l| &a/xyrs gui (玩家名)   &7>>> &6显示收购商店页面
-            &7&l| &a/xyrs refresh All   &7>>> &6立刻刷新所有随机商店
+            &7&l| &a/xyrs refreshAll    &7>>> &6立刻刷新所有随机商店
             &7&l| &a/xyrs refresh [玩家名] &7>>> &6立即刷新某玩家的随机商店
             &7&l| &a/xyrs open [玩家名]  &7>>> &6开启指定玩家的收购商店
             &7&l| &a/xyrs close [玩家名]  &7>>> &6关闭指定玩家的收购商店
@@ -37,20 +41,19 @@ object CommandManager : CommandExecutor{
 
     override fun onCommand(sender: CommandSender, cmd: Command, s: String, ss: Array<String>): Boolean {
         if(cmd.name.equals("xyrs", true)){
-
             if(ss.isEmpty()){
                 sendInfo(sender)
             }else{
                 when(ss[0].lowercase()){
                     "info" -> sendInfo(sender)
-                    "gui" -> gui.run(sender, ss.copyOfRange(1, ss.size -1))
-                    "refresh" -> {}
-                    "open" -> {}
-                    "close" -> {}
+                    "gui" -> gui.run(sender, ss.copyOfRange(1, ss.size))
+                    "refresh" -> refresh.run(sender, ss.copyOfRange(1, ss.size))
+                    "refreshall" -> refreshAll.run(sender)
+                    "open" -> open.run(sender, ss.copyOfRange(1, ss.size))
+                    "close" -> close.run(sender, ss.copyOfRange(1, ss.size))
                     "version" -> version.run(sender)
                 }
             }
-
             return true
         }
         return false

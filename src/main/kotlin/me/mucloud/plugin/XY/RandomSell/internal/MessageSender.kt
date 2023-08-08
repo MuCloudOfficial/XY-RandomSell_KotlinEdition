@@ -47,7 +47,10 @@ object MessageSender{
     fun sendMessageToConsole(level: MessageLevel, msg: String){
         sendMessage(level, CCS, msg)
     }
-    
+
+    /**
+     *      该方法的消息以 NOTICE 形式发送
+     */
     fun broadcastMessage(msg: String){
         Bukkit.getOnlinePlayers().forEach {
             sendMessage(MessageLevel.NOTICE, it, msg)

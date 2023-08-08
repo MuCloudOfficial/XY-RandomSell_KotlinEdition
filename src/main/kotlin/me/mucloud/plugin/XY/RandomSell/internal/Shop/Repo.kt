@@ -21,9 +21,12 @@ import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import me.clip.placeholderapi.PlaceholderAPI
+import me.mucloud.plugin.XY.RandomSell.Main
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.scheduler.BukkitRunnable
+import org.bukkit.scheduler.BukkitTask
 
 object RepoPool{
 
@@ -35,10 +38,12 @@ object RepoPool{
     private var NonCapacityStatus: Boolean = false
 
     private var IsOpen: Boolean = false
-    var Refresh: Int = 0
+    var Refresh: Int = 0 // minute
+    var Remain: Int = 0  // Second
     var Capacity: Int = 0
 
     private val POOL: MutableMap<Player, Repo> = emptyMap<Player, Repo>().toMutableMap()
+    private lateinit var RefreshTask: BukkitTask
 
     fun launch(sender: CommandSender, config: ConfigurationReader){
         if(NonCapacityStatus || NonRefreshStatus || NonProductStatus){
@@ -55,8 +60,52 @@ object RepoPool{
         }else{
             IsOpen = true
             Refresh = config.getRefresh()
+            Remain = Refresh * 60
             Capacity = config.getCapacity()
         }
+    }
+
+    fun regTimerTask(main: Main){
+        RefreshTask = object : BukkitRunnable() {
+            override fun run(){
+                when(Remain){
+                    60,30,5,4,3,2,1 -> MessageSender.broadcastMessage("&6&l随机收购商店即将在 &4&l$Remain &6&l秒后刷新")
+                    0 -> {
+                        refreshAll()
+                        Remain = Refresh * 60
+                        return
+                    }
+                }
+                Remain--
+            }
+        }.runTaskTimer(main, 0, 20L)
+    }
+
+    fun refresh(sender: CommandSender, target: Player){
+        if(!POOL.containsKey(target)){
+            MessageSender.sendMessage(MessageLevel.NOTICE, sender, "&6&l当前商店池中未注册该玩家")
+            return
+        }
+        POOL[target]!!.refresh()
+    }
+
+    fun refreshAll(){
+        POOL.forEach{
+            it.value.refresh()
+        }
+    }
+
+    fun close(){
+        POOL.forEach{
+            if(!it.value.seller.isEmpty()){
+                it.value.seller.clearSell()
+            }
+            if(it.value.isView){
+                it.value.closeRepoView()
+            }
+        }
+        POOL.clear()
+        RefreshTask.cancel()
     }
 
     fun reg(user: Player){
@@ -110,11 +159,13 @@ object RepoPool{
             return
         }
         if(source == call){
-            POOL[call]!!.open()
+            if(!POOL[call]!!.open()){
+                MessageSender.sendMessage(MessageLevel.NORMAL, source, "&4&l该商店没有被开启")
+            }
         }else if(source.isOp){
             POOL[call]!!.open(source)
         }else{
-            MessageSender.sendMessage(MessageLevel.NOTICE, source, "&4&l商店池中存在该商店，但你没有权限打开该商店")
+            MessageSender.sendMessage(MessageLevel.NOTICE, source, "&4&l你没有权限执行该命令")
         }
     }
 
@@ -124,15 +175,20 @@ object RepoPool{
         }else null
     }
 
-    fun setOpenRepo(caller: CommandSender, target: Player, open: Boolean){
-        if(getRepo(target) == null){
-            MessageSender.sendMessage(MessageLevel.NOTICE, caller, "&4&l未找到该玩家对应的收购商店")
+    fun setOpenRepo(sender: CommandSender, call: String, open: Boolean){
+        val target = Bukkit.getPlayer(call)
+        if(target == null){
+            MessageSender.sendMessage(MessageLevel.NORMAL, sender, "&4&l未找到该玩家")
         }else{
-            getRepo(target)!!.isOpen = open
-            if(open){
-                MessageSender.sendMessage(MessageLevel.NOTICE, caller, "&a&l该玩家的收购商店已开启")
+            if(getRepo(target) == null){
+                MessageSender.sendMessage(MessageLevel.NOTICE, sender, "&4&l未找到该玩家对应的收购商店")
             }else{
-                MessageSender.sendMessage(MessageLevel.NOTICE, caller, "&6&l该玩家的收购商店已关闭")
+                getRepo(target)!!.isOpen = open
+                if(open){
+                    MessageSender.sendMessage(MessageLevel.NOTICE, sender, "&a&l该玩家的收购商店已开启")
+                }else{
+                    MessageSender.sendMessage(MessageLevel.NOTICE, sender, "&6&l该玩家的收购商店已关闭")
+                }
             }
         }
     }
@@ -149,7 +205,7 @@ class Repo(owner: Player, init: ArrayList<Product>) {
     var Title: String
 
     // 商店内容
-    val Content: MutableList<Product> = emptyList<Product>().toMutableList()
+    var Content: MutableList<Product> = emptyList<Product>().toMutableList()
 
     // 商店拥有者
     val Owner: Player = owner
@@ -175,6 +231,16 @@ class Repo(owner: Player, init: ArrayList<Product>) {
 
         preInitView()
         seller = Seller(Owner)
+    }
+
+    fun refresh(){
+        Content = ProductPool.toProductList()
+        if(!seller.isEmpty()){
+            seller.clearSell()
+        }
+        if(isView){
+            Owner.updateInventory()
+        }
     }
 
     fun addProduct(product: Product): Int{ // 0 - Succeed | 1 - Too Much | 2 - Similar Product
@@ -215,13 +281,18 @@ class Repo(owner: Player, init: ArrayList<Product>) {
         seller.openSell()
     }
 
-    fun open(){
+    fun open(): Boolean{
+        if(!isOpen){
+            return false
+        }
         isView = true
         Owner.openInventory(INV)
+        return true
     }
 
-    fun open(target: Player){
+    fun open(target: Player): Boolean{
         target.openInventory(INV)
+        return true
     }
 
     fun closeRepoView(){
