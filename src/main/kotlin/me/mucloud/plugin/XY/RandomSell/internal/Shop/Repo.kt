@@ -1,5 +1,6 @@
 package me.mucloud.plugin.XY.RandomSell.internal.Shop
 
+import me.mucloud.plugin.XY.RandomSell.Main
 import me.mucloud.plugin.XY.RandomSell.external.hook.PAPIHooker
 import me.mucloud.plugin.XY.RandomSell.internal.MessageLevel
 import me.mucloud.plugin.XY.RandomSell.internal.MessageSender
@@ -13,6 +14,8 @@ import me.mucloud.plugin.XY.RandomSell.internal.Shop.GUIRESOURCES.P5
 import me.mucloud.plugin.XY.RandomSell.internal.Shop.GUIRESOURCES.PX
 import me.mucloud.plugin.XY.RandomSell.internal.configuration.ConfigurationReader
 
+import me.clip.placeholderapi.PlaceholderAPI
+
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -20,8 +23,6 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
-import me.clip.placeholderapi.PlaceholderAPI
-import me.mucloud.plugin.XY.RandomSell.Main
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
@@ -129,6 +130,10 @@ object RepoPool{
 
     fun setCapacityStatus(b: Boolean){
         NonCapacityStatus = b
+    }
+
+    fun isOpen(): Boolean{
+        return IsOpen
     }
 
     fun getSize(): Int{
@@ -243,6 +248,7 @@ class Repo(owner: Player, init: ArrayList<Product>) {
         }
     }
 
+    // 暂时用不到，等下一个版本
     fun addProduct(product: Product): Int{ // 0 - Succeed | 1 - Too Much | 2 - Similar Product
         if(Content.size != 54){
             if(Content.contains(product)){
@@ -255,6 +261,7 @@ class Repo(owner: Player, init: ArrayList<Product>) {
         }
     }
 
+    // 暂时用不到，等下一个版本
     fun delProduct(pos: Int): Int{ // 0 - Succeed | 1 - Empty POOL | 2 - No Position Exist
         if(Content.size == 1){
             return 1
@@ -438,11 +445,15 @@ object SellGUIListener: Listener{
 object RepoPoolListener: Listener{
 
     @EventHandler fun onListen(pje: PlayerJoinEvent){
-        RepoPool.reg(pje.player)
+        if(RepoPool.isOpen()){
+            RepoPool.reg(pje.player)
+        }
     }
 
     @EventHandler fun onListen(pqe: PlayerQuitEvent){
-        RepoPool.del(pqe.player)
+        if(RepoPool.isOpen()){
+            RepoPool.del(pqe.player)
+        }
     }
 
 }

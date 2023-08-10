@@ -171,10 +171,6 @@ object ConfigurationReader{
         return GUITitle
     }
 
-    fun getPrefix(): String{
-        return PREFIX
-    }
-
     fun getRefresh(): Int{
         return Refresh
     }

@@ -5,16 +5,12 @@ import me.mucloud.plugin.XY.RandomSell.external.hook.PAPIHooker
 import me.mucloud.plugin.XY.RandomSell.external.hook.VaultHooker
 import me.mucloud.plugin.XY.RandomSell.internal.MessageLevel
 import me.mucloud.plugin.XY.RandomSell.internal.MessageSender
-import me.mucloud.plugin.XY.RandomSell.internal.Shop.RepoGUIListener
-import me.mucloud.plugin.XY.RandomSell.internal.Shop.RepoPool
-import me.mucloud.plugin.XY.RandomSell.internal.Shop.RepoPoolListener
-import me.mucloud.plugin.XY.RandomSell.internal.Shop.SellGUIListener
+import me.mucloud.plugin.XY.RandomSell.internal.Shop.*
 import me.mucloud.plugin.XY.RandomSell.internal.command.CommandManager
 import me.mucloud.plugin.XY.RandomSell.internal.configuration.ConfigurationReader
 
 import org.bukkit.Bukkit
 import org.bukkit.event.HandlerList
-
 import org.bukkit.plugin.java.JavaPlugin
 
 class Main(
@@ -44,11 +40,12 @@ class Main(
 
     override fun onDisable() {
 
+        MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "§a§l $NAME 正在关闭")
         CommandManager.close(this)
+        RepoPool.close()
+        ProductPool.close()
 
         HandlerList.unregisterAll(this)
-
-        MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "§a§l $NAME 正在关闭")
     }
 
 }
