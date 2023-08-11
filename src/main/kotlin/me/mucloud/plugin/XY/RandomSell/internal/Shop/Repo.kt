@@ -276,7 +276,7 @@ class Repo(owner: Player, init: ArrayList<Product>) {
 
     private fun preInitView(){
         Content.forEach{ p ->
-            INV.addItem()
+            INV.addItem(p.toICON())
         }
     }
 
