@@ -9,9 +9,23 @@ author: "Mu_Cloud"
 api-version: 1.12
 softdepend: ["PlaceholderAPI"]
 description: XY-RandomSell Plugin.
-libraries: []
+libraries:
+  - org.jetbrains.kotlin:kotlin-stdlib:1.8.21
+  - org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21
+  - org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21
+  - org.jetbrains:annotations:23.0.0
 
 commands:
   xyrs:
     usage: /xyrs [args]
     description: "This plugin is not compatible in your server when you look this message."
+
+permissions:
+  xyrsp.gui:
+    default: true
+  xyrsp.refresh:
+    default: op
+  xyrsp.control:
+    default: op
+  xyrsp.version:
+    default: op
