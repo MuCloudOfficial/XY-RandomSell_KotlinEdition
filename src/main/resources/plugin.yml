@@ -6,7 +6,7 @@ versionCN: "星空"
 versionInternal: 1.1101
 author: "Mu_Cloud"
 #==================================================
-api-version: 1.12
+api-version: 1.13
 softdepend: ["PlaceholderAPI"]
 description: XY-RandomSell Plugin.
 libraries:

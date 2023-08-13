@@ -42,7 +42,7 @@ class Main(
 
         MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "§a§l $NAME 正在关闭")
         CommandManager.close(this)
-        RepoPool.close()
+        if(RepoPool.isOpen()) RepoPool.close()
         ProductPool.close()
 
         HandlerList.unregisterAll(this)

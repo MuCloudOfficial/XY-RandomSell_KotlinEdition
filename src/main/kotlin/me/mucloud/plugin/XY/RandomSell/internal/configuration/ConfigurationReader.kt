@@ -8,6 +8,7 @@ import me.mucloud.plugin.XY.RandomSell.internal.Shop.ProductPool
 import me.mucloud.plugin.XY.RandomSell.internal.Shop.RepoPool
 
 import org.bukkit.Material
+import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 
 import java.io.File
@@ -18,7 +19,7 @@ object ConfigurationReader{
     private lateinit var main: Main
 
     private lateinit var configFile: File
-    private lateinit var configFileReader: YamlConfiguration
+    private lateinit var configFileReader: FileConfiguration
     private lateinit var configVersion: String
 
     private lateinit var PREFIX: String
@@ -61,16 +62,22 @@ object ConfigurationReader{
             "Products",
         )
 
-        configFileReader = YamlConfiguration.loadConfiguration(configFile)
+        configFileReader = YamlConfiguration()
+        configFileReader.load(configFile)
+
         if(!configFileReader.isSet("version")){
+            configFile.renameTo(File(configFile.parentFile, "${configFile.name}_${Date().time}_old.yml"))
             main.saveDefaultConfig()
+            configFileReader.load(configFile)
         }
+
         configVersion = configFileReader.getString("version")!!
 
         if(configVersion !in compatibleConfigVersions){
             MessageSender.LOG_WARN("设置文件已不在支持范围内，原设置文件已备份")
-            configFile.renameTo(File(configFile.parentFile, "${configFile.name}_${Date().time}_old"))
+            configFile.renameTo(File(configFile.parentFile, "${configFile.name}_${Date().time}_old.yml"))
             main.saveDefaultConfig()
+            configFileReader.load(configFile)
         }
 
         configVersion = configFileReader.getString("version")!!
@@ -106,8 +113,9 @@ object ConfigurationReader{
 
         if(!validated){
             MessageSender.LOG_ERR("当前设置文件不合法，该设置文件已备份")
-            configFile.renameTo(File(configFile.parentFile, "${configFile.name}_${Date().time}.yml_old"))
+            configFile.renameTo(File(configFile.parentFile, "${configFile.name}_${Date().time}_old.yml"))
             main.saveDefaultConfig()
+            configFileReader.load(configFile)
         }
 
         fetchConfig()
@@ -123,7 +131,7 @@ object ConfigurationReader{
             "amount",
         )
 
-        var sum: Int = 0
+        var sum = 0
 
         loop@for(p in configFileReader.getList("Products")!!){
             val map: Map<String, *> = p as Map<String, *>
