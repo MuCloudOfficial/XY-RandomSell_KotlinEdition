@@ -93,10 +93,8 @@ object ConfigurationReader{
                     MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "&6设置文件中 $it 设定值非法, 正在生成新设置文件")
                     validated = false
                 }else if(it == "Refresh" && configFileReader.getInt(it) <= 0){
-                    MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "&6设置文件中 $it 设定值非法, 商店将无法启动")
                     RepoPool.setRefreshStatus(false)
                 }else if(it == "Capacity" && configFileReader.getInt(it) !in 1 .. 54){
-                    MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "&6设置文件中 $it 设定值非法, 商店将无法启动")
                     RepoPool.setCapacityStatus(false)
                 }else if(it == "Products"){
                     if(configFileReader.getList(it)!!.isEmpty()){
@@ -139,12 +137,19 @@ object ConfigurationReader{
                 if(!map.contains(c)){
                     continue@loop
                 }
+                if(c == "material" && Material.matchMaterial(map[c] as String) == null){
+                    continue@loop
+                }
             }
             sum++
         }
 
-        MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "&a从当前配置文件中检测到 $sum 个有效商品")
-        fetchConfig()
+        if(sum != 0){
+            MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "&a从当前配置文件中检测到 $sum 个有效商品")
+        }else{
+            RepoPool.setProductStatus(false)
+        }
+
     }
 
     private fun fetchConfig(){
@@ -167,6 +172,10 @@ object ConfigurationReader{
                     map["amount"] as Int
                 )
             )
+        }
+
+        if(Capacity > ProductPool.getSize()){
+            RepoPool.setCapacityStatus(false)
         }
 
     }

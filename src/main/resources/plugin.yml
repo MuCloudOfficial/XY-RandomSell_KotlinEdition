@@ -3,7 +3,7 @@ name: XY-RandomSell
 main: me.mucloud.plugin.XY.RandomSell.Main
 version: "StarrySky"
 versionCN: "星空"
-versionInternal: 1.1102
+versionInternal: 1.1103
 author: "Mu_Cloud"
 #==================================================
 api-version: 1.13

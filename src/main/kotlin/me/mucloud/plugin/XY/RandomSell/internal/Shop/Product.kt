@@ -37,7 +37,10 @@ object ProductPool{
             if(it.ICON == product.ICON) return
         }
         POOL.add(product)
+    }
 
+    fun getSize(): Int{
+        return POOL.size
     }
 
     fun close(){

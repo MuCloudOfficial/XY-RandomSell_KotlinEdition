@@ -26,7 +26,7 @@ object VaultHooker {
                 main.server.pluginManager.disablePlugin(main)
             }else{
                 ECON = rsp.provider
-                MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "&a&l 已检测到 Vault §7§l| &a&l${vault.description.version}")
+                MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "&a&l已检测到 Vault §7§l| &a&l${vault.description.version}")
             }
         }
     }

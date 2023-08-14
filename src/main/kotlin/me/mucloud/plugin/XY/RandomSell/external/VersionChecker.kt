@@ -15,6 +15,7 @@ import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
 import java.net.URL
+import java.nio.charset.StandardCharsets
 
 object VersionChecker{
 
@@ -40,7 +41,7 @@ object VersionChecker{
 
     private fun fetchCurrentVer(){
         val reader = YamlConfiguration().also {
-            it.load(BufferedReader(InputStreamReader(main.getResource("plugin.yml")!!)))
+            it.load(BufferedReader(InputStreamReader(main.getResource("plugin.yml")!!, StandardCharsets.UTF_8)))
         }
         version = reader.getString("version")!!
         versionCN = reader.getString("versionCN")!!
@@ -75,7 +76,7 @@ object VersionChecker{
                         hasNewerVer = true
                     }
                 }else{
-                    MessageSender.sendMessage(MessageLevel.NORMAL, caller, "&6&l未获取到新版本信息, 获取新版本信息请移步至本插件的项目页")
+                    MessageSender.sendMessage(MessageLevel.NOTICE, caller, "&6&l未获取到新版本信息, 获取新版本信息请移步至本插件的项目页")
                     return
                 }
 
@@ -83,7 +84,7 @@ object VersionChecker{
                     """
                     &7&l| 找到新版本
                     &7&l| ${if(!version.equals(remoteVersion, true)){ "$version($versionCN) >>> &e&l$remoteVersion($remoteVersionCN) &7&l| $versionInternal >>> &e&l$remoteVersionInternal" } else "$versionInternal >>> &e&l$remoteVersionInternal"}
-                    &7&l|
+                    &7&l| 
                     &7&l| 当前版本下载地址:
                     &7&l| https://gitee.com/MuCloudOfficial/XY-RandomSell_KotlinEdition/releases/tag/${version}_${versionInternal}
                     &7&l| https://github.com/MuCloudOfficial/XY-RandomSell_KotlinEdition/releases/tag/${version}_${versionInternal}

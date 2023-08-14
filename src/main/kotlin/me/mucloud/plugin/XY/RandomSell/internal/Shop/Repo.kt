@@ -53,7 +53,7 @@ object RepoPool{
                 MessageSender.sendMessage(MessageLevel.NORMAL, sender, "&4当前没有商品")
             }
             if(NonCapacityStatus){
-                MessageSender.sendMessage(MessageLevel.NORMAL, sender, "&4当前容量值为 0")
+                MessageSender.sendMessage(MessageLevel.NORMAL, sender, "&4当前容量值为 0 或高于商品池池存量")
             }
             if(NonRefreshStatus){
                 MessageSender.sendMessage(MessageLevel.NORMAL, sender, "&4当前未设定刷新时间")
@@ -67,6 +67,10 @@ object RepoPool{
     }
 
     fun regTimerTask(main: Main){
+        if(!isOpen()){
+            MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "&4&l由于商店池未启动，商店池刷新任务被取消创建")
+            return
+        }
         RefreshTask = object : BukkitRunnable() {
             override fun run(){
                 when(Remain){
@@ -121,15 +125,15 @@ object RepoPool{
     }
 
     fun setRefreshStatus(b: Boolean){
-        NonRefreshStatus = b
+        NonRefreshStatus = !b
     }
 
     fun setProductStatus(b: Boolean){
-        NonProductStatus = b
+        NonProductStatus = !b
     }
 
     fun setCapacityStatus(b: Boolean){
-        NonCapacityStatus = b
+        NonCapacityStatus = !b
     }
 
     fun isOpen(): Boolean{
