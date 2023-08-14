@@ -15,10 +15,10 @@ object gui {
             if(!sender.hasPermission("xyrsp.gui")){
                 MessageSender.sendMessage(MessageLevel.NORMAL, sender, "&4&l你没有权限执行该命令")
             }else{
-                if(ss.size == 1){
+                if(ss.isEmpty()){
                     RepoPool.open(sender, sender)
-                }else if(ss.size == 2){
-                    val target = Bukkit.getPlayer(ss[1])
+                }else if(ss.size == 1){
+                    val target = Bukkit.getPlayer(ss[0])
                     if(target == null){
                         MessageSender.sendMessage(MessageLevel.NORMAL, sender, "&4&l未找到该玩家")
                     }else{
