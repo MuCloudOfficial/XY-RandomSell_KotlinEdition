@@ -77,7 +77,6 @@ object VersionChecker{
                         hasNewerVer = true
                     }
 
-                    MessageSender.LOG_INFO("$versionInternal | $remoteVersionInternal")
                 }else{
                     MessageSender.sendMessage(MessageLevel.NOTICE, caller, "&6&l未获取到新版本信息, 获取新版本信息请移步至本插件的项目页")
                     return
