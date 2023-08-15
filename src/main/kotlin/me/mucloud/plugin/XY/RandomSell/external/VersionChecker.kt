@@ -22,8 +22,8 @@ object VersionChecker{
     private lateinit var main: Main
 
     val remoteSources: Array<String> = arrayOf(
-        "https://raw.githubusercontent.com/MuCloudOfficial/XY-RandomSell/master/src/main/resources/plugin.yml",
-        "https://gitee.com/MuCloudOfficial/XY-RandomSell/raw/master/src/main/resources/plugin.yml")
+        "https://raw.githubusercontent.com/MuCloudOfficial/XY-RandomSell_KotlinEdition/master/src/main/resources/plugin.yml",
+        "https://gitee.com/MuCloudOfficial/XY-RandomSell_KotlinEdition/raw/master/src/main/resources/plugin.yml")
 
     lateinit var version: String
     lateinit var versionCN: String
@@ -56,9 +56,10 @@ object VersionChecker{
                 var hasNewerVer = false
                 for(i in remoteSources){
                     try {
-                        remoteReader = BufferedReader(InputStreamReader(URL(i).openStream()))
+                        val url = URL(i).openConnection()
+                        url.connectTimeout = 2000
+                        remoteReader = BufferedReader(InputStreamReader(url.getInputStream(), StandardCharsets.UTF_8))
                     }catch (e: IOException){
-                        success = false
                         continue
                     }
                     success = true
@@ -75,6 +76,8 @@ object VersionChecker{
                     if(remoteVersionInternal > versionInternal){
                         hasNewerVer = true
                     }
+
+                    MessageSender.LOG_INFO("$versionInternal | $remoteVersionInternal")
                 }else{
                     MessageSender.sendMessage(MessageLevel.NOTICE, caller, "&6&l未获取到新版本信息, 获取新版本信息请移步至本插件的项目页")
                     return
@@ -85,7 +88,7 @@ object VersionChecker{
                     &7&l| 找到新版本
                     &7&l| ${if(!version.equals(remoteVersion, true)){ "$version($versionCN) >>> &e&l$remoteVersion($remoteVersionCN) &7&l| $versionInternal >>> &e&l$remoteVersionInternal" } else "$versionInternal >>> &e&l$remoteVersionInternal"}
                     &7&l| 
-                    &7&l| 当前版本下载地址:
+                    &7&l| 新版本下载地址:
                     &7&l| https://gitee.com/MuCloudOfficial/XY-RandomSell_KotlinEdition/releases/tag/${version}_${versionInternal}
                     &7&l| https://github.com/MuCloudOfficial/XY-RandomSell_KotlinEdition/releases/tag/${version}_${versionInternal}
                     """.trimIndent()
