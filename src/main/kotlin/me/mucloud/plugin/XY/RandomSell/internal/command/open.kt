@@ -9,7 +9,7 @@ import org.bukkit.command.ConsoleCommandSender
 
 object open {
 
-    fun run(sender: CommandSender, ss: Array<String>){
+    fun run(sender: CommandSender, ss: Array<out String>){
         if(sender is ConsoleCommandSender || sender.hasPermission("xyrsp.control")){
             if(ss.size != 1){
                 MessageSender.sendMessage(MessageLevel.NORMAL, sender, "&4&l你输入的参数数量错误")

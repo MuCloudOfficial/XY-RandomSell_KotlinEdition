@@ -10,7 +10,7 @@ import org.bukkit.entity.Player
 
 object gui {
 
-    fun run(sender: CommandSender, ss: Array<String>){
+    fun run(sender: CommandSender, ss: Array<out String>){
         if(sender is Player){
             if(!sender.hasPermission("xyrsp.gui")){
                 MessageSender.sendMessage(MessageLevel.NORMAL, sender, "&4&l你没有权限执行该命令")

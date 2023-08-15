@@ -10,7 +10,7 @@ import org.bukkit.command.ConsoleCommandSender
 
 object refresh {
 
-    fun run(sender: CommandSender, ss: Array<String>){
+    fun run(sender: CommandSender, ss: Array<out String>){
         if(sender is ConsoleCommandSender || sender.hasPermission("xyrsp.refresh")){
             if(ss.size == 1){
                 val player = Bukkit.getPlayer(ss[0])

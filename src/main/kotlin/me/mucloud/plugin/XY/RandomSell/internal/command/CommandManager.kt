@@ -45,7 +45,7 @@ object CommandManager : CommandExecutor{
         """.trimIndent())
     }
 
-    override fun onCommand(sender: CommandSender, cmd: Command, s: String, ss: Array<String>): Boolean {
+    override fun onCommand(sender: CommandSender, cmd: Command, s: String, ss: Array<out String>): Boolean {
         if(cmd.name.equals("xyrs", true)){
             if(ss.isEmpty()){
                 sendInfo(sender)
@@ -58,6 +58,7 @@ object CommandManager : CommandExecutor{
                     "open" -> open.run(sender, ss.copyOfRange(1, ss.size))
                     "close" -> close.run(sender, ss.copyOfRange(1, ss.size))
                     "version" -> version.run(sender)
+                    else -> MessageSender.sendMessage(MessageLevel.NOTICE, sender, "&4&l子命令输入错误，请重新输入")
                 }
             }
             return true

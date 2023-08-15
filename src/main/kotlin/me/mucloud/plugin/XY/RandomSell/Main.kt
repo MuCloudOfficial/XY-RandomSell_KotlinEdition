@@ -21,7 +21,7 @@ class Main(
     override fun onEnable() {
         MessageSender.init(this)
 
-        MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "§a§l $NAME 正在启动")
+        MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "§a§l$NAME 正在启动")
 
         ConfigurationReader.init(this)
         CommandManager.init(this) // Load Command -> "/xyrs"
@@ -40,7 +40,7 @@ class Main(
 
     override fun onDisable() {
 
-        MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "§a§l $NAME 正在关闭")
+        MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "§a§l$NAME 正在关闭")
         CommandManager.close(this)
         if(RepoPool.isOpen()) RepoPool.close()
         ProductPool.close()

@@ -12,7 +12,7 @@ object PAPIHooker {
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null){
             MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "&6&l未检测到 PlaceholderAPI, 全局变量将不可用")
         }else{
-            MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "&6&l已检测到 PlaceholderAPI, 全局变量可以使用")
+            MessageSender.sendMessageToConsole(MessageLevel.NOTICE, "&a&l已检测到 PlaceholderAPI, 全局变量可以使用")
             isHook = true
         }
     }
