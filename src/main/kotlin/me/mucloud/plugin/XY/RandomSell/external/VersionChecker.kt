@@ -85,12 +85,12 @@ object VersionChecker{
 
                 val msg = if(hasNewerVer){
                     """
-                    &7&l| 找到新版本
+                    &7&l| &e&l找到新版本
                     &7&l| ${if(!version.equals(remoteVersion, true)){ "$version($versionCN) >>> &e&l$remoteVersion($remoteVersionCN) &7&l| $versionInternal >>> &e&l$remoteVersionInternal" } else "$versionInternal >>> &e&l$remoteVersionInternal"}
                     &7&l| 
-                    &7&l| 新版本下载地址:
-                    &7&l| https://gitee.com/MuCloudOfficial/XY-RandomSell_KotlinEdition/releases/tag/${version}_${versionInternal}
-                    &7&l| https://github.com/MuCloudOfficial/XY-RandomSell_KotlinEdition/releases/tag/${version}_${versionInternal}
+                    &7&l| &a&l新版本下载地址:
+                    &7&l| &a&lhttps://gitee.com/MuCloudOfficial/XY-RandomSell_KotlinEdition/releases/tag/${remoteVersion}_${remoteVersionInternal}
+                    &7&l| &a&lhttps://github.com/MuCloudOfficial/XY-RandomSell_KotlinEdition/releases/tag/${remoteVersion}_${remoteVersionInternal}
                     """.trimIndent()
                 }else{
                     "&7&l| &a&l当前已最新版本"
